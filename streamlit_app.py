@@ -208,15 +208,16 @@ def main():
 
             create_pdf_with_graph(file_path, 'output.pdf', additional_info, selected_style, selected_palette)
 
-            try:
-                if sys.platform.startswith('win32'):
-                    subprocess.run(['start', 'output.pdf'], check=True, shell=True)
-                elif sys.platform.startswith('darwin'):
-                    subprocess.run(['open', 'output.pdf'], check=True)
-                else:
-                    st.error("Unsupported platform.")
-            except subprocess.CalledProcessError as e:
-                st.error("Failed to open the PDF file.")
+            # Download button for the PDF
+            st.download_button(
+                label="PDF herunterladen",
+                data=open('output.pdf', 'rb').read(),
+                file_name='output.pdf',
+                mime='application/pdf'
+            )
+
+            # Link to open the PDF in a new tab
+            st.markdown("[PDF im neuen Tab öffnen](data:application/pdf;base64," + st.file_manager.get_encoded_download_link('output.pdf') + ")", unsafe_allow_html=True)
 
 if __name__ == "__main__":
     main()
