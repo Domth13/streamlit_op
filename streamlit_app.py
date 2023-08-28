@@ -1,6 +1,6 @@
 import streamlit as st
-import subprocess
-import sys
+import base64
+import io
 import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
@@ -94,29 +94,20 @@ def generate_bar_graph(data, scales, selected_style, selected_palette):
 
 
 
-def create_pdf_with_graph(file_path, output_file, additional_info, selected_style, selected_palette):
-    # Read the CSV file
+def create_pdf_with_graph(file_path, additional_info, selected_style, selected_palette):
     data = pd.read_excel(file_path)
-
-    # Delete rows with all missing values
     data = data.dropna(axis=0, how='all')
-    # Delete columns with all missing values
     data = data.dropna(axis=1, how='all')
-
-    # Fill missing values with the mean
     pk_columns = [col for col in data.columns if col.startswith('pk')]
     sus_columns = [col for col in data.columns if col.startswith('sus')]
     data[pk_columns] = data[pk_columns].fillna(data[pk_columns].mean())
     data[sus_columns] = data[sus_columns].fillna(data[sus_columns].mean())
-
-    # Compute the mean for PK values and SUS scores on each scale
     data['pk_mean'] = data[pk_columns].mean(axis=1)
     data['sus_mean'] = data[sus_columns].mean(axis=1)
-
     scales = data['scale_name'].unique()
 
-    # Create a new PDF document
-    c = canvas.Canvas(output_file, pagesize=letter)
+    pdf_data = io.BytesIO()  # Create a BytesIO object to hold PDF data
+    c = canvas.Canvas(pdf_data, pagesize=letter)
 
     # Add additional text to the PDF
     y_position = 30
@@ -180,8 +171,14 @@ def create_pdf_with_graph(file_path, output_file, additional_info, selected_styl
     # Save the PDF document
     c.showPage()
     c.save()
+    pdf_data.seek(0)
 
-    print(f"PDF file '{output_file}' created successfully.")
+    return pdf_data.getvalue()
+
+def show_pdf(pdf_data):
+    base64_pdf = base64.b64encode(pdf_data).decode('utf-8')
+    pdf_display = f'<iframe src="data:application/pdf;base64,{base64_pdf}" width="800" height="800" type="application/pdf"></iframe>'
+    st.markdown(pdf_display, unsafe_allow_html=True)
 
 def main():
     st.title("Grafik Unterrichtsbeobachtung")
@@ -191,8 +188,8 @@ def main():
     class_level = st.text_input("Klassenstufe:")
     date_time = st.text_input("Tag und Uhrzeit des Unterrichts:")
     topic = st.text_input("Thema des Unterrichts:")
-    selected_style = st.selectbox("Select a Seaborn style", ["darkgrid", "whitegrid"])
-    selected_palette = st.selectbox("Select a Seaborn palette", ["bright", "deep", "muted", "pastel", "dark", "colorblind"])
+    selected_style = st.selectbox("Diagrammhintergrund wählen", ["darkgrid", "whitegrid"])
+    selected_palette = st.selectbox("Farbdarstellung wählen", ["bright", "deep", "husl", "pastel", "dark", "colorblind", "Set2"])
 
     file_path = st.file_uploader("Datei auswählen (.xlsx)", type=["xlsx"])
 
@@ -206,18 +203,16 @@ def main():
                 'topic': topic
             }
 
-            create_pdf_with_graph(file_path, 'output.pdf', additional_info, selected_style, selected_palette)
+            pdf_data = create_pdf_with_graph(file_path, additional_info, selected_style, selected_palette)
 
-            # Download button for the PDF
             st.download_button(
                 label="PDF herunterladen",
-                data=open('output.pdf', 'rb').read(),
-                file_name='output.pdf',
-                mime='application/pdf'
+                data=pdf_data,
+                file_name=f"Auswertung Unterrichtsbeobachtung_{additional_info['name']}.pdf",
+                mime="application/pdf"
             )
 
-            # Link to open the PDF in a new tab
-            st.markdown("[PDF im neuen Tab öffnen](data:application/pdf;base64," + st.file_manager.get_encoded_download_link('output.pdf') + ")", unsafe_allow_html=True)
+            show_pdf(pdf_data)
 
 if __name__ == "__main__":
     main()
