@@ -1,0 +1,5 @@
+reportlab
+streamlit>=1.20.0
+seaborn
+altair==4.1.0
+openpyxl
