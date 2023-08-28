@@ -1,5 +1,4 @@
 import streamlit as st
-#import base64
 import io
 import pandas as pd
 import seaborn as sns
@@ -8,7 +7,7 @@ from reportlab.lib.pagesizes import letter
 from reportlab.pdfgen import canvas
 from reportlab.lib.pagesizes import letter, landscape
 import os
-#from pdf2image import convert_from_bytes
+
 
 def generate_plot(data, scales, selected_style, selected_palette):
     plt.figure(figsize=(14, 10), dpi=300)
@@ -65,7 +64,7 @@ def generate_bar_graph(data, scales, selected_style, selected_palette):
     
 
     # Create a bar graph
-    plt.figure(figsize=(22, 16), dpi=300)
+    plt.figure(figsize=(24, 16), dpi=300)
     bar_width = 0.2
 
     plt.bar(range(len(scales)), means_self, width=bar_width, label='Selbst', align='center')
@@ -107,7 +106,7 @@ def create_pdf_with_graph(file_path, additional_info, selected_style, selected_p
     data['sus_mean'] = data[sus_columns].mean(axis=1)
     scales = data['scale_name'].unique()
 
-    pdf_data = io.BytesIO()  # Create a BytesIO object to hold PDF data
+    pdf_data = io.BytesIO()  
     c = canvas.Canvas(pdf_data, pagesize=letter)
 
     # Add additional text to the PDF
@@ -176,17 +175,6 @@ def create_pdf_with_graph(file_path, additional_info, selected_style, selected_p
 
     return pdf_data.getvalue()
 
-"""def show_pdf(pdf_data):
-    base64_pdf = base64.b64encode(pdf_data).decode('utf-8')
-    pdf_display = f'<iframe src="data:application/pdf;base64,{base64_pdf}" width="800" height="800" type="application/pdf"></iframe>'
-    st.markdown(pdf_display, unsafe_allow_html=True)
-
-def show_pdf_as_png(pdf_data):
-    images = convert_from_bytes(pdf_data)
-    
-    for page_num, image in enumerate(images, start=1):
-        st.image(image, caption=f"Page {page_num}", use_column_width=True)"""
-
 def main():
     st.title("Grafik Unterrichtsbeobachtung")
 
@@ -218,8 +206,6 @@ def main():
                 file_name=f"Auswertung Unterrichtsbeobachtung_{additional_info['name']}.pdf",
                 mime="application/pdf"
             )
-
-            ##show_pdf_as_png(pdf_data)
 
 if __name__ == "__main__":
     main()
