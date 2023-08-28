@@ -64,7 +64,7 @@ def generate_bar_graph(data, scales, selected_style, selected_palette):
     
 
     # Create a bar graph
-    plt.figure(figsize=(24, 16), dpi=300)
+    plt.figure(figsize=(26, 18), dpi=300)
     bar_width = 0.2
 
     plt.bar(range(len(scales)), means_self, width=bar_width, label='Selbst', align='center')
@@ -156,10 +156,11 @@ def create_pdf_with_graph(file_path, additional_info, selected_style, selected_p
 
     # Calculate the required width and height to fit the bar graph within the canvas
     width, height = landscape(letter)
-    bar_graph_width = 800
-    bar_graph_height = 400
+    bar_graph_width = 790
+    bar_graph_height = 450
+    padding_right = 5  # Adjust this value as needed
 
-    x_offset = (width - bar_graph_width) / 2
+    x_offset = (width - bar_graph_width - padding_right) / 2 
     y_offset = (height - bar_graph_height) / 2
 
     # Draw the PNG on the PDF canvas
@@ -204,7 +205,7 @@ def main():
                 label="PDF herunterladen",
                 data=pdf_data,
                 file_name=f"Auswertung Unterrichtsbeobachtung_{additional_info['name']}.pdf",
-                mime="application/pdf"
+                mime="application/pdf",
             )
 
 if __name__ == "__main__":
