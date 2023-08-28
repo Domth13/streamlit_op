@@ -1,5 +1,5 @@
 import streamlit as st
-import base64
+#import base64
 import io
 import pandas as pd
 import seaborn as sns
@@ -8,7 +8,7 @@ from reportlab.lib.pagesizes import letter
 from reportlab.pdfgen import canvas
 from reportlab.lib.pagesizes import letter, landscape
 import os
-from pdf2image import convert_from_bytes
+#from pdf2image import convert_from_bytes
 
 def generate_plot(data, scales, selected_style, selected_palette):
     plt.figure(figsize=(14, 10), dpi=300)
@@ -176,7 +176,7 @@ def create_pdf_with_graph(file_path, additional_info, selected_style, selected_p
 
     return pdf_data.getvalue()
 
-def show_pdf(pdf_data):
+"""def show_pdf(pdf_data):
     base64_pdf = base64.b64encode(pdf_data).decode('utf-8')
     pdf_display = f'<iframe src="data:application/pdf;base64,{base64_pdf}" width="800" height="800" type="application/pdf"></iframe>'
     st.markdown(pdf_display, unsafe_allow_html=True)
@@ -185,7 +185,7 @@ def show_pdf_as_png(pdf_data):
     images = convert_from_bytes(pdf_data)
     
     for page_num, image in enumerate(images, start=1):
-        st.image(image, caption=f"Page {page_num}", use_column_width=True)
+        st.image(image, caption=f"Page {page_num}", use_column_width=True)"""
 
 def main():
     st.title("Grafik Unterrichtsbeobachtung")
