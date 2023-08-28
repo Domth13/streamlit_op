@@ -8,11 +8,12 @@ from reportlab.lib.pagesizes import letter
 from reportlab.pdfgen import canvas
 from reportlab.lib.pagesizes import letter, landscape
 import os
+from pdf2image import convert_from_bytes
 
 def generate_plot(data, scales, selected_style, selected_palette):
-    plt.figure(figsize=(14, 10))
+    plt.figure(figsize=(14, 10), dpi=300)
     plt.subplots_adjust(hspace=0.7)
-    sns.set(style=selected_style, palette=selected_palette)  # Set Seaborn style
+    sns.set(style=selected_style, palette=selected_palette, font_scale=1.2, font='Arial')  # Set Seaborn style
     
 
     for i, scale in enumerate(scales, start=1):
@@ -60,11 +61,11 @@ def generate_bar_graph(data, scales, selected_style, selected_palette):
         means_sus.append(mean_sus)
 
     # Set Seaborn style
-    sns.set(style=selected_style, palette=selected_palette)
+    sns.set(style=selected_style, palette=selected_palette, font_scale=1.2, font='Arial')
     
 
     # Create a bar graph
-    plt.figure(figsize=(14, 12))
+    plt.figure(figsize=(22, 16), dpi=300)
     bar_width = 0.2
 
     plt.bar(range(len(scales)), means_self, width=bar_width, label='Selbst', align='center')
@@ -76,11 +77,11 @@ def generate_bar_graph(data, scales, selected_style, selected_palette):
     scale_labels = data.drop_duplicates(subset=['scale_name', 'scale_short'])[['scale_name', 'scale_short']]
     x_labels = [label for label in scale_labels['scale_short']]
 
-    plt.xlabel('Merkmal', fontweight='bold')
-    plt.ylabel('Mittelwert', fontweight='bold')
-    plt.title('Mittelwerte je Merkmal', fontweight='bold')
-    plt.xticks([i + 1.5 * bar_width for i in range(len(scales))], x_labels, rotation=0, ha='center', fontweight='bold', fontsize=12)
-    plt.legend(loc='upper left', prop={'weight': 'bold'})
+    plt.xlabel('Merkmal', fontweight='bold', fontsize=24)
+    plt.ylabel('Mittelwert', fontweight='bold', fontsize=24)
+    plt.title('Mittelwerte je Merkmal', fontweight='bold', fontsize=32)
+    plt.xticks([i + 1.5 * bar_width for i in range(len(scales))], x_labels, rotation=0, ha='center', fontweight='bold', fontsize=20)
+    plt.legend(loc='upper left', prop={'weight': 'bold', "size": '18'})
     plt.ylim(0.5, 4.5)
     plt.yticks([1, 2, 3, 4])
     plt.tight_layout()
@@ -180,6 +181,12 @@ def show_pdf(pdf_data):
     pdf_display = f'<iframe src="data:application/pdf;base64,{base64_pdf}" width="800" height="800" type="application/pdf"></iframe>'
     st.markdown(pdf_display, unsafe_allow_html=True)
 
+def show_pdf_as_png(pdf_data):
+    images = convert_from_bytes(pdf_data)
+    
+    for page_num, image in enumerate(images, start=1):
+        st.image(image, caption=f"Page {page_num}", use_column_width=True)
+
 def main():
     st.title("Grafik Unterrichtsbeobachtung")
 
@@ -212,7 +219,7 @@ def main():
                 mime="application/pdf"
             )
 
-            show_pdf(pdf_data)
+            show_pdf_as_png(pdf_data)
 
 if __name__ == "__main__":
     main()
