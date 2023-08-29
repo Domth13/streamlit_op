@@ -1,6 +1,8 @@
 import streamlit as st
 import io
 import pandas as pd
+import numpy as np
+from scipy import stats
 import seaborn as sns
 import matplotlib.pyplot as plt
 from reportlab.lib.pagesizes import letter
@@ -71,6 +73,21 @@ def generate_bar_graph(data, scales, selected_style, selected_palette):
     plt.bar([i + bar_width for i in range(len(scales))], means_blk, width=bar_width, label='BLK', align='center')
     plt.bar([i + 2 * bar_width for i in range(len(scales))], means_pk, width=bar_width, label='PK', align='center')
     plt.bar([i + 3 * bar_width for i in range(len(scales))], means_sus, width=bar_width, label='SUS', align='center')
+
+    # Add error bars using standard error of the mean
+    for i, scale in enumerate(scales):
+        scale_data = data[data['scale_name'] == scale]
+        
+        # Calculate standard error
+        std_err_self = stats.sem(scale_data['self'])
+        std_err_blk = stats.sem(scale_data['blk'])
+        std_err_pk = stats.sem(scale_data['pk_mean'])
+        std_err_sus = stats.sem(scale_data['sus_mean'])
+        
+        plt.errorbar(x=i, y=means_self[i], yerr=std_err_self, color='black', fmt='none', capsize=4)
+        plt.errorbar(x=i + bar_width, y=means_blk[i], yerr=std_err_blk, color='black', fmt='none', capsize=4)
+        plt.errorbar(x=i + 2 * bar_width, y=means_pk[i], yerr=std_err_pk, color='black', fmt='none', capsize=4)
+        plt.errorbar(x=i + 3 * bar_width, y=means_sus[i], yerr=std_err_sus, color='black', fmt='none', capsize=4)
 
     # Set the x-axis labels to scale_short
     scale_labels = data.drop_duplicates(subset=['scale_name', 'scale_short'])[['scale_name', 'scale_short']]
