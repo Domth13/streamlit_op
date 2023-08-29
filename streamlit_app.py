@@ -1,8 +1,6 @@
 import streamlit as st
 import io
 import pandas as pd
-import numpy as np
-from scipy import stats
 import seaborn as sns
 import matplotlib.pyplot as plt
 from reportlab.lib.pagesizes import letter
@@ -79,10 +77,15 @@ def generate_bar_graph(data, scales, selected_style, selected_palette):
         scale_data = data[data['scale_name'] == scale]
         
         # Calculate standard error
-        std_err_self = stats.sem(scale_data['self'])
-        std_err_blk = stats.sem(scale_data['blk'])
-        std_err_pk = stats.sem(scale_data['pk_mean'])
-        std_err_sus = stats.sem(scale_data['sus_mean'])
+        n_self = len(scale_data['self'])
+        n_blk = len(scale_data['blk'])
+        n_pk = len(scale_data['pk_mean'])
+        n_sus = len(scale_data['sus_mean'])
+        
+        std_err_self = scale_data['self'].std() / (n_self ** 0.5)
+        std_err_blk = scale_data['blk'].std() / (n_blk ** 0.5)
+        std_err_pk = scale_data['pk_mean'].std() / (n_pk ** 0.5)
+        std_err_sus = scale_data['sus_mean'].std() / (n_sus ** 0.5)
         
         plt.errorbar(x=i, y=means_self[i], yerr=std_err_self, color='black', fmt='none', capsize=4)
         plt.errorbar(x=i + bar_width, y=means_blk[i], yerr=std_err_blk, color='black', fmt='none', capsize=4)
