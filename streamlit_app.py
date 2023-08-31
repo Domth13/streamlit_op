@@ -8,11 +8,25 @@ from reportlab.pdfgen import canvas
 from reportlab.lib.pagesizes import letter, landscape
 import os
 
+COLOR_PALETTES = {
+    "retro_metro": ["#ea5545", "#edbf33", "#87bc45", "#27aeef", "#b33dc6"],
+    "dutch_field": ["#e60049", "#0bb4ff", "#50e991", "#e6d800", "#9b19f5", "#ffa300", "#dc0ab4", "#b3d4ff", "#00bfa0"],
+    "river_nights": ["#b30000", "#7c1158", "#4421af", "#1a53ff", "#0d88e6", "#00b7c7", "#5ad45a", "#8be04e", "#ebdc78"],
+    "spring_pastels": ["#fd7f6f", "#7eb0d5", "#b2e061", "#bd7ebe", "#ffb55a", "#ffee65", "#beb9db", "#fdcce5", "#8bd3c7"],
+    "berry_citrus": ["#370031", "#832232", "#CE8964", "#EAF27C" ]
+}
+
 
 def generate_plot(data, scales, selected_style, selected_palette):
     plt.figure(figsize=(14, 10), dpi=300)
     plt.subplots_adjust(hspace=0.7)
-    sns.set(style=selected_style, palette=selected_palette, font_scale=1.2)  # Set Seaborn style
+
+    if selected_palette in COLOR_PALETTES:
+        palette = COLOR_PALETTES[selected_palette]
+    else:
+        palette = selected_palette
+
+    sns.set(style=selected_style, palette=palette, font_scale=1.2)  # Set Seaborn style
     
 
     for i, scale in enumerate(scales, start=1):
@@ -60,7 +74,11 @@ def generate_bar_graph(data, scales, selected_style, selected_palette):
         means_sus.append(mean_sus)
 
     # Set Seaborn style
-    sns.set(style=selected_style, palette=selected_palette, font_scale=1.2)
+    if selected_palette in COLOR_PALETTES:
+        palette = COLOR_PALETTES[selected_palette]
+    else:
+        palette = selected_palette
+    sns.set(style=selected_style, palette=palette, font_scale=1.2)
     
 
     # Create a bar graph
@@ -205,7 +223,7 @@ def main():
     date_time = st.text_input("Tag und Uhrzeit des Unterrichts:")
     topic = st.text_input("Thema des Unterrichts:")
     selected_style = st.selectbox("Diagrammhintergrund wählen", ["darkgrid", "whitegrid"])
-    selected_palette = st.selectbox("Farbdarstellung wählen", ["bright", "deep", "husl", "pastel", "dark", "colorblind", "Set2"])
+    selected_palette = st.selectbox("Farbdarstellung wählen", ["bright", "retro_metro", "dutch_field", "river_nights", "spring_pastels", "berry_citrus", "husl", "dark",])
 
     file_path = st.file_uploader("Datei auswählen (.xlsx)", type=["xlsx"])
 
