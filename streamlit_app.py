@@ -12,7 +12,7 @@ import os
 def generate_plot(data, scales, selected_style, selected_palette):
     plt.figure(figsize=(14, 10), dpi=300)
     plt.subplots_adjust(hspace=0.7)
-    sns.set(style=selected_style, palette=selected_palette, font_scale=1.2, font='Arial')  # Set Seaborn style
+    sns.set(style=selected_style, palette=selected_palette, font_scale=1.2)  # Set Seaborn style
     
 
     for i, scale in enumerate(scales, start=1):
@@ -60,7 +60,7 @@ def generate_bar_graph(data, scales, selected_style, selected_palette):
         means_sus.append(mean_sus)
 
     # Set Seaborn style
-    sns.set(style=selected_style, palette=selected_palette, font_scale=1.2, font='Arial')
+    sns.set(style=selected_style, palette=selected_palette, font_scale=1.2)
     
 
     # Create a bar graph
