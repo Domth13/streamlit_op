@@ -245,6 +245,24 @@ def main():
     selected_palette = st.selectbox("Farbdarstellung wählen", ["bright", "retro_metro", "dutch_field", "river_nights", "spring_pastels", "berry_citrus", "husl", "dark",])
 
     file_path = st.file_uploader("Datei auswählen (.xlsx)", type=["xlsx"])
+    st.markdown(
+    """
+    <style>
+        .big-font {
+            font-size:24px !important;
+        }
+        .small-font {
+            font-size:12px !important;
+        }
+    </style>
+    """, 
+    unsafe_allow_html=True
+    )
+
+    if not file_path:
+        st.markdown('<p class="big-font">Mindestvoraussetzungen</p>', unsafe_allow_html=True)
+        st.markdown('<p class="small-font">1 x Wert in den Spalten Self und BLK</p>', unsafe_allow_html=True)
+        st.markdown('<p class="small-font">1 x Wert in den PK und SUS Spalten</p>', unsafe_allow_html=True)
 
     if file_path:
         df = pd.read_excel(file_path)
