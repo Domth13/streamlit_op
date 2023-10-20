@@ -262,7 +262,7 @@ def main():
     if not file_path:
         st.markdown('<p class="big-font">Mindestvoraussetzungen</p>', unsafe_allow_html=True)
         st.markdown('<p class="small-font">1 x Wert in den Spalten Self und BLK</p>', unsafe_allow_html=True)
-        st.markdown('<p class="small-font">1 x Wert in den PK und SUS Spalten</p>', unsafe_allow_html=True)
+        st.markdown('<p class="small-font">1 x Wert in einer der PK und SUS Spalten</p>', unsafe_allow_html=True)
 
     if file_path:
         df = pd.read_excel(file_path)
