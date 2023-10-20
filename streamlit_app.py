@@ -17,6 +17,25 @@ COLOR_PALETTES = {
 }
 
 
+def validate_data(df):
+    # Check if there's at least one column with 'pk' and at least one with 'sus'
+    has_pk = any(col.startswith('pk') for col in df.columns if df[col].count() > 0)
+    has_sus = any(col.startswith('sus') for col in df.columns if df[col].count() > 0)
+
+    if not has_pk or not has_sus:
+        missing = "'pk'" if not has_pk else "'sus'"
+        st.error(f'Error: The column "{missing}" is missing or empty. Please provide at least one value.')
+        return False
+
+    # Check for existence and non-emptiness of 'self' and 'blk' columns
+    for must_have_col in ['self', 'blk']:
+        if must_have_col not in df or df[must_have_col].count() == 0:
+            st.error(f'Error: The column "{must_have_col}" is missing or empty. Please provide at least one value.')
+            return False
+
+    # If all checks pass
+    return True
+
 def generate_plot(data, scales, selected_style, selected_palette):
     plt.figure(figsize=(14, 10), dpi=300)
     plt.subplots_adjust(hspace=0.7)
@@ -227,24 +246,31 @@ def main():
 
     file_path = st.file_uploader("Datei auswählen (.xlsx)", type=["xlsx"])
 
-    if st.button("Grafik erstellen"):
-        if file_path is not None:
-            additional_info = {
-                'name': name,
-                'school': school,
-                'class_level': class_level,
-                'date_time': date_time,
-                'topic': topic
-            }
+    if file_path:
+        df = pd.read_excel(file_path)
+        validated = validate_data(df)
+        if validated:
+            st.success("Data is valid!")
 
-            pdf_data = create_pdf_with_graph(file_path, additional_info, selected_style, selected_palette)
+        if st.button("Grafik erstellen"):
+            if file_path is not None:
+                additional_info = {
+                    'name': name,
+                    'school': school,
+                    'class_level': class_level,
+                    'date_time': date_time,
+                    'topic': topic
+                }
 
-            st.download_button(
-                label="PDF herunterladen",
-                data=pdf_data,
-                file_name=f"Auswertung Unterrichtsbeobachtung_{additional_info['name']}.pdf",
-                mime="application/pdf",
-            )
+                pdf_data = create_pdf_with_graph(file_path, additional_info, selected_style, selected_palette)
+
+                st.success("Die Grafik wurde erfolgreich erstellt.")
+                st.download_button(
+                    label="PDF herunterladen",
+                    data=pdf_data,
+                    file_name=f"Auswertung Unterrichtsbeobachtung_{additional_info['name']}.pdf",
+                    mime="application/pdf",
+                )
 
 if __name__ == "__main__":
     main()
