@@ -155,6 +155,21 @@ def create_pdf_with_graph(file_path, additional_info, selected_style, selected_p
     data = pd.read_excel(file_path)
     data = data.dropna(axis=0, how='all')
     data = data.dropna(axis=1, how='all')
+    
+    # Identify rows containing 'S4' and 'D3' in the 'item' column
+    rows_to_recode = data[(data['item'] == 'S4') | (data['item'] == 'D3')]
+
+    # Iterate over each row to recode inverted items
+    for index, row in rows_to_recode.iterrows():
+        for col in data.columns:
+            if (col.startswith('pk') or col.startswith('sus')) and (row[col] != '' and row[col] != 0):
+                data.at[index, col] = 4 - row[col]  # Recode inverted items
+            elif col in ['self', 'blk'] and (row[col] != '' and row[col] != 0):
+                data.at[index, col] = 4 - row[col]  # Recode inverted items
+    
+    # Remove empty columns after recoding
+    data = data.dropna(axis=1, how='all')
+    
     pk_columns = [col for col in data.columns if col.startswith('pk')]
     sus_columns = [col for col in data.columns if col.startswith('sus')]
     data[pk_columns] = data[pk_columns].fillna(data[pk_columns].mean())
