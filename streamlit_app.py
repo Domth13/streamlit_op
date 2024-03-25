@@ -163,9 +163,9 @@ def create_pdf_with_graph(file_path, additional_info, selected_style, selected_p
     for index, row in rows_to_recode.iterrows():
         for col in data.columns:
             if (col.startswith('pk') or col.startswith('sus')) and (row[col] != '' and row[col] != 0):
-                data.at[index, col] = 4 - row[col]  # Recode inverted items
+                data.at[index, col] = 5 - row[col]  # Recode inverted items
             elif col in ['self', 'blk'] and (row[col] != '' and row[col] != 0):
-                data.at[index, col] = 4 - row[col]  # Recode inverted items
+                data.at[index, col] = 5 - row[col]  # Recode inverted items
     
     # Remove empty columns after recoding
     data = data.dropna(axis=1, how='all')
