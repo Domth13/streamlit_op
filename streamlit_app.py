@@ -150,11 +150,14 @@ def generate_bar_graph(data, scales, selected_style, selected_palette):
     return temp_bar_png
 
 
-
 def create_pdf_with_graph(file_path, additional_info, selected_style, selected_palette):
     data = pd.read_excel(file_path)
     data = data.dropna(axis=0, how='all')
     data = data.dropna(axis=1, how='all')
+    
+    # Replace any 0s with NaN in the relevant columns
+    columns_to_replace_zeros = ['self', 'blk'] + [col for col in data.columns if col.startswith('pk') or col.startswith('sus')]
+    data[columns_to_replace_zeros] = data[columns_to_replace_zeros].replace(0, float('nan'))
     
     # Identify rows containing 'S4' and 'D3' in the 'item' column
     rows_to_recode = data[(data['item'] == 'S4') | (data['item'] == 'D3')]
@@ -172,10 +175,29 @@ def create_pdf_with_graph(file_path, additional_info, selected_style, selected_p
     
     pk_columns = [col for col in data.columns if col.startswith('pk')]
     sus_columns = [col for col in data.columns if col.startswith('sus')]
-    data[pk_columns] = data[pk_columns].fillna(data[pk_columns].mean())
-    data[sus_columns] = data[sus_columns].fillna(data[sus_columns].mean())
-    data['pk_mean'] = data[pk_columns].mean(axis=1)
-    data['sus_mean'] = data[sus_columns].mean(axis=1)
+
+    # Check if all 'sus' columns are empty
+    if all(data[col].isna().all() for col in sus_columns):
+        st.warning("Warning: 'SUS' columns are entirely empty. No 'SUS' values will be shown in the plot.")
+        data['sus_mean'] = float('nan')  # Set 'sus_mean' to NaN for all rows
+    else:
+        # Exclude rows where all 'sus' columns are NaN from the mean calculation
+        data['sus_mean'] = data[sus_columns].apply(
+            lambda row: row.mean() if not row.isna().all() else float('nan'),
+            axis=1
+        )
+    
+    # Check if all 'pk' columns are empty
+    if all(data[col].isna().all() for col in pk_columns):
+        st.warning("Warning: 'PK' columns are entirely empty. No 'PK' values will be shown in the plot.")
+        data['pk_mean'] = float('nan')  # Set 'pk_mean' to NaN for all rows
+    else:
+        # Exclude rows where all 'pk' columns are NaN from the mean calculation
+        data['pk_mean'] = data[pk_columns].apply(
+            lambda row: row.mean() if not row.isna().all() else float('nan'),
+            axis=1
+        )
+
     scales = data['scale_name'].unique()
 
     pdf_data = io.BytesIO()  
