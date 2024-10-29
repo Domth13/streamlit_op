@@ -199,7 +199,6 @@ def create_pdf_with_graph(file_path, additional_info, selected_style, selected_p
         )
 
     scales = data['scale_name'].unique()
-
     pdf_data = io.BytesIO()  
     c = canvas.Canvas(pdf_data, pagesize=letter)
 
